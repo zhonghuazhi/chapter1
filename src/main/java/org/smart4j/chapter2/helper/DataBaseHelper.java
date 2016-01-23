@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * 使用连接池 apache dbcp2
  * Created by zhonghua on 16/1/13.
  */
 public final class DataBaseHelper {
