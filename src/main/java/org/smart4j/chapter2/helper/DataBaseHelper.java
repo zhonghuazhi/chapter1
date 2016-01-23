@@ -1,5 +1,6 @@
 package org.smart4j.chapter2.helper;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -23,9 +24,11 @@ public final class DataBaseHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(DataBaseHelper.class);
 
-    private static final QueryRunner QUERY_RUNNER = new QueryRunner();
+    private static final QueryRunner QUERY_RUNNER;
 
-    private static final ThreadLocal<Connection> CONNECTION_THREAD_LOCAL = new ThreadLocal<Connection>();
+    private static final ThreadLocal<Connection> CONNECTION_THREAD_LOCAL;
+
+    private static final BasicDataSource DATA_SOURCE;
 
     private static final String DRIVER;
     private static final String URL;
@@ -33,18 +36,21 @@ public final class DataBaseHelper {
     private static final String PASSWORD;
 
     static {
-        Properties props = PropsUtil.loadProps("config.properties");
 
+        CONNECTION_THREAD_LOCAL = new ThreadLocal<Connection>();
+        QUERY_RUNNER = new QueryRunner();
+
+        Properties props = PropsUtil.loadProps("config.properties");
         DRIVER = props.getProperty("jdbc.driver");
         URL = props.getProperty("jdbc.url");
         USERNAME = props.getProperty("jdbc.username");
         PASSWORD = props.getProperty("jdbc.password");
 
-        try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
-            logger.error("can not load jdbc driver. ", e);
-        }
+        DATA_SOURCE = new BasicDataSource();
+        DATA_SOURCE.setDriverClassName(DRIVER);
+        DATA_SOURCE.setUrl(URL);
+        DATA_SOURCE.setUsername(USERNAME);
+        DATA_SOURCE.setPassword(PASSWORD);
     }
 
     /**
@@ -57,7 +63,7 @@ public final class DataBaseHelper {
         Connection connection = CONNECTION_THREAD_LOCAL.get();
         if (null == connection) {
             try {
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                connection = DATA_SOURCE.getConnection();
             } catch (SQLException e) {
                 logger.error("get Connection failure. ", e);
                 throw new RuntimeException(e);
@@ -68,39 +74,6 @@ public final class DataBaseHelper {
         return connection;
     }
 
-    /**
-     * 关闭连接
-     *
-     * @param connection
-     */
-    public static void closeConnection(Connection connection) {
-
-        if (null != connection) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                logger.error("close connection failure. ", e);
-            }
-        }
-    }
-
-    /**
-     * 关闭连接
-     */
-    public static void closeConnection() {
-
-        Connection connection = CONNECTION_THREAD_LOCAL.get();
-        if (null != connection) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                logger.error("close Connection failure. ", e);
-                throw new RuntimeException(e);
-            } finally {
-                CONNECTION_THREAD_LOCAL.remove();
-            }
-        }
-    }
 
     public static <T> List<T> queryEntityList(Class<T> entityClass,
                                               Connection connection, String sql) {
@@ -110,8 +83,6 @@ public final class DataBaseHelper {
             list = QUERY_RUNNER.query(connection, sql, new BeanListHandler<T>(entityClass));
         } catch (SQLException e) {
             logger.error("query entity list failure. ", e);
-        } finally {
-            closeConnection(connection);
         }
         return list;
     }
@@ -134,8 +105,6 @@ public final class DataBaseHelper {
         } catch (SQLException e) {
             logger.error("query entity list failure. ", e);
             throw new RuntimeException(e);
-        } finally {
-            closeConnection(connection);
         }
         return list;
     }
@@ -157,8 +126,6 @@ public final class DataBaseHelper {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
-        } finally {
-            closeConnection(connection);
         }
         return entity;
     }
@@ -178,8 +145,6 @@ public final class DataBaseHelper {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
-        } finally {
-            closeConnection(connection);
         }
         return listMap;
     }
