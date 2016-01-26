@@ -75,20 +75,9 @@ public final class DataBaseHelper {
         return connection;
     }
 
-
-    public static <T> List<T> queryEntityList(Class<T> entityClass,
-                                              Connection connection, String sql) {
-
-        List<T> list = null;
-        try {
-            list = QUERY_RUNNER.query(connection, sql, new BeanListHandler<T>(entityClass));
-        } catch (SQLException e) {
-            logger.error("query entity list failure. ", e);
-        }
-        return list;
-    }
-
     /**
+     * 查询所有用户信息
+     *
      * @param entityClass
      * @param sql
      * @param params
@@ -111,6 +100,8 @@ public final class DataBaseHelper {
     }
 
     /**
+     * 查询指定用户信息
+     *
      * @param entityClass
      * @param sql
      * @param params
@@ -151,6 +142,8 @@ public final class DataBaseHelper {
     }
 
     /**
+     * 增加用户
+     *
      * @param entityClass
      * @param fieldMap
      * @return
@@ -164,7 +157,7 @@ public final class DataBaseHelper {
 
         for (String fieldName : fieldMap.keySet()) {
             columns.append(fieldName).append(", ");
-            values.append("? ,");
+            values.append("? , ");
         }
 
         columns = columns.replace(columns.lastIndexOf(", "), columns.length(), ")");
@@ -175,6 +168,8 @@ public final class DataBaseHelper {
     }
 
     /**
+     * 修改用户
+     *
      * @param entityClass
      * @param id
      * @param fieldMap
@@ -188,18 +183,20 @@ public final class DataBaseHelper {
         StringBuilder columns = new StringBuilder();
 
         for (String fieldName : fieldMap.keySet()) {
-            columns.append(fieldName).append("=?, ");
+            columns.append(fieldName).append(" = ?, ");
         }
-        sql += columns.substring(0, columns.lastIndexOf(",")) + " WHERE id - ?";
+        sql += columns.substring(0, columns.lastIndexOf(",")) + " WHERE id = ?";
 
         List<Object> params = new ArrayList<Object>();
         params.addAll(fieldMap.values());
         params.add(id);
 
-        return executeUpdate(sql, params) == 1;
+        return executeUpdate(sql, params.toArray()) == 1;
     }
 
     /**
+     * 删除用户
+     *
      * @param entityClass
      * @param id
      * @param <T>
