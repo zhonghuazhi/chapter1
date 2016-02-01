@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.smart4j.chapter2.util.PropsUtil;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
