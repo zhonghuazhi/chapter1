@@ -29,11 +29,13 @@ public final class PropsUtil {
                     Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
 
             if (null == inputStream) {
+                logger.error("fileName :{} is Not Found!", fileName);
                 throw new FileNotFoundException(fileName + " is Not Found!");
             }
 
             properties = new Properties();
             properties.load(inputStream);
+            logger.info("load system properties success.");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         } finally {
