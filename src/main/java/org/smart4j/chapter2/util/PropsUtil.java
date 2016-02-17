@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * 属性文件工具类
  * Created by zhonghua on 16/1/5.
  */
 public final class PropsUtil {
@@ -16,6 +17,8 @@ public final class PropsUtil {
     private static final Logger logger = LoggerFactory.getLogger(PropsUtil.class);
 
     /**
+     * 加载属性文件
+     *
      * @param fileName
      * @return
      */
@@ -51,6 +54,8 @@ public final class PropsUtil {
     }
 
     /**
+     * 获得字符型属性
+     *
      * @param properties
      * @param key
      * @return
@@ -60,6 +65,8 @@ public final class PropsUtil {
     }
 
     /**
+     * 获得字符型属性
+     *
      * @param properties
      * @param key
      * @param defaultValue

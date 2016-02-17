@@ -11,7 +11,7 @@ public class TestA {
 
     public static void main(String[] args){
 
-        Properties props = PropsUtil.loadProps("config.properties");
+        Properties props = PropsUtil.loadProps("config1.properties");
         System.out.println(props.getProperty("jdbc.driver"));
     }
 }
